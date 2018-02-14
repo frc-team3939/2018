@@ -181,6 +181,34 @@ public class Robot extends IterativeRobot   {
 	@Override
 	public void autonomousInit() {
 		
+		String gameData;
+		int botlocation;
+		gameData = DriverStation.getInstance().getGameSpecificMessage();
+		botlocation = DriverStation.getInstance().getLocation();
+        
+		if(gameData.length() > 0)
+                {
+		  if(gameData.charAt(0) == 'L')
+		  {
+			//Put left auto code here
+			if (botlocation == 1) {
+				
+			} else if (botlocation == 2){
+				
+			} else if (botlocation == 3){
+				
+			}
+		  } else {
+			//Put right auto code here
+			 if (botlocation == 1) {
+					
+			 } else if (botlocation == 2){
+					
+			 } else if (botlocation == 3){
+					
+			 }  
+		  }
+        }
 		
 	}
 
