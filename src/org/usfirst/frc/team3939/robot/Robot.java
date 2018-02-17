@@ -2,7 +2,7 @@ package org.usfirst.frc.team3939.robot;
 
 import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.wpilibj.IterativeRobot;
-import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Joystick; 
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.Timer; 
 import edu.wpi.first.wpilibj.RobotDrive.MotorType;
@@ -19,7 +19,7 @@ import com.kauailabs.navx.frc.AHRS;
 //import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DigitalInput; 
 import edu.wpi.first.wpilibj.DoubleSolenoid; 
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.CameraServer;
@@ -81,6 +81,7 @@ public class Robot extends IterativeRobot   {
 	public void robotInit() {
 
 		RightBackMotor.follow(RightFrontMotor);
+		LeftBackMotor.follow(LeftFrontMotor);
 		
 		myDrive = new RobotDrive(LeftFrontMotor, LeftBackMotor, RightFrontMotor, RightBackMotor);
 		myDrive.setInvertedMotor(MotorType.kRearRight, true);
