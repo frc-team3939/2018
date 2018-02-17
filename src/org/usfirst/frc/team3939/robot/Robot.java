@@ -4,20 +4,25 @@ import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotDrive;
-import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Timer; 
 import edu.wpi.first.wpilibj.RobotDrive.MotorType;
 //import edu.wpi.first.wpilibj.SendableBase;
 //import edu.wpi.first.wpilibj.SpeedControllerGroup;
 //import edu.wpi.first.wpilibj.drive.RobotDriveBase;
 //import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.vision.USBCamera;
+
 //import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import com.kauailabs.navx.frc.AHRS;
+
 //import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DoubleSolenoid; 
 import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.CameraServer;
 
 
 
@@ -39,18 +44,15 @@ public class Robot extends IterativeRobot   {
 	
 	@SuppressWarnings("deprecation")
 	RobotDrive myDrive;
-	
+	 
 	// Channels for the wheels
 	WPI_TalonSRX LeftBackMotor = new WPI_TalonSRX(20); 		/* device IDs here (1 of 2) */
 	WPI_TalonSRX LeftFrontMotor = new WPI_TalonSRX(25);
-	WPI_TalonSRX RightBackMotor = new WPI_TalonSRX(21);
-	WPI_TalonSRX RightFrontMotor = new WPI_TalonSRX(28);
-	
-
+	WPI_TalonSRX RightBackMotor = new WPI_TalonSRX(28);
+	WPI_TalonSRX RightFrontMotor = new WPI_TalonSRX(21);
 	
 	WPI_TalonSRX LiftMotor = new WPI_TalonSRX(22);
 	double LiftPower = 1; 
-	
 	 
 	WPI_TalonSRX ClimbMotor = new WPI_TalonSRX(24);
 	double ClimbPower = 1;
@@ -66,9 +68,10 @@ public class Robot extends IterativeRobot   {
 	DoubleSolenoid Solenoid6;
     
 	Servo S0;
-
-     
-
+	
+	DigitalInput Music;
+	
+	
 	/**
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
@@ -76,7 +79,8 @@ public class Robot extends IterativeRobot   {
 	@SuppressWarnings("deprecation")
 	@Override 
 	public void robotInit() {
-		
+
+		RightBackMotor.follow(RightFrontMotor);
 		
 		myDrive = new RobotDrive(LeftFrontMotor, LeftBackMotor, RightFrontMotor, RightBackMotor);
 		myDrive.setInvertedMotor(MotorType.kRearRight, true);
@@ -91,8 +95,11 @@ public class Robot extends IterativeRobot   {
 	       
 		S0 = new Servo(0);
 		S0.set(.1);   // set kicker default position
-       	
-        	 
+
+		 
+		CameraServer.getInstance().startAutomaticCapture(0); //USB Cameras
+		CameraServer.getInstance().startAutomaticCapture(1); //USB Cameras
+		
 //		try {
 	          /* Communicate w/navX-MXP via the MXP SPI Bus.                                     */
 	          /* Alternatively:  I2C.Port.kMXP, SerialPort.Port.kMXP or SerialPort.Port.kUSB     */
@@ -273,7 +280,7 @@ public class Robot extends IterativeRobot   {
 				HookMotor.set(0); 
 			}
 			
-			
+			 
 			if (stick.getRawButton(1)) {
 				// grab open
 				grabopen();
@@ -285,9 +292,18 @@ public class Robot extends IterativeRobot   {
 			
 			if (stick.getRawButton(9)) {
 				// open servo
+				S0.set(.1); 
+			} 
+			if (stick.getRawButton(10)) {
+				// open servo
 				S0.set(.5); 
 			} 
-			
+		
+			if (stick.getRawButton(5)){
+			//	Music.setSpeed(.5);
+			} else {
+				//Music.setSpeed(0);
+			}
 		}
 	}
 
