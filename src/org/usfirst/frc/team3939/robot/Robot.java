@@ -207,6 +207,25 @@ public class Robot extends IterativeRobot   {
 			
 	}
 	
+	public void Turn(double degree) {   // Positive = Left Negitive  = Right
+		double circumferenceInInches =  23.56;
+		int pulsesPerRotation = 1024 ;
+		int currentPosition = RightFrontMotor.getSensorCollection().getQuadraturePosition();
+		double targetPulseCount = (((degree/360) * 43.175 ) / circumferenceInInches) * pulsesPerRotation;
+
+			do {
+				if (targetPulseCount > 0 ) {
+				myDrive.arcadeDrive(0,.5); //Not sure about direction
+				currentPosition = RightFrontMotor.getSensorCollection().getQuadraturePosition();
+					} else {
+						myDrive.arcadeDrive(0,-.5); //Not sure about direction
+						currentPosition = RightFrontMotor.getSensorCollection().getQuadraturePosition();							
+					}
+				} while (currentPosition < targetPulseCount);
+			myDrive.stopMotor();
+			
+	}
+	
 	
 	@Override
 	public void autonomousInit() {
