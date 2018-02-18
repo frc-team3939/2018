@@ -1,8 +1,11 @@
 package org.usfirst.frc.team3939.robot;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.wpilibj.IterativeRobot;
-import edu.wpi.first.wpilibj.Joystick; 
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.Timer; 
 import edu.wpi.first.wpilibj.RobotDrive.MotorType;
@@ -11,7 +14,7 @@ import edu.wpi.first.wpilibj.RobotDrive.MotorType;
 //import edu.wpi.first.wpilibj.drive.RobotDriveBase;
 //import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.vision.USBCamera;
+//import edu.wpi.first.wpilibj.vision.USBCamera;
 
 //import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import com.kauailabs.navx.frc.AHRS;
@@ -19,7 +22,7 @@ import com.kauailabs.navx.frc.AHRS;
 //import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.DigitalInput; 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid; 
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.CameraServer;
@@ -101,6 +104,8 @@ public class Robot extends IterativeRobot   {
 		CameraServer.getInstance().startAutomaticCapture(0); //USB Cameras
 		CameraServer.getInstance().startAutomaticCapture(1); //USB Cameras
 		
+		
+
 //		try {
 	          /* Communicate w/navX-MXP via the MXP SPI Bus.                                     */
 	          /* Alternatively:  I2C.Port.kMXP, SerialPort.Port.kMXP or SerialPort.Port.kUSB     */
@@ -180,10 +185,27 @@ public class Robot extends IterativeRobot   {
         //SmartDashboard.putBoolean("airpump pressureSwitch", airpump.getPressureSwitchValue());
         //SmartDashboard.putNumber("airpumpp current", airpump.getCompressorCurrent());
 		
+		SmartDashboard.putNumber("Left Encdoer Count", LeftFrontMotor.getSensorCollection().getQuadraturePosition());
 		SmartDashboard.putNumber("pov", stick.getPOV());
-        
-        
+		SmartDashboard.putNumber("Right Encdoer Count", RightFrontMotor.getSensorCollection().getQuadraturePosition());        
+		SmartDashboard.putNumber("Target", (120 / 23.56) * 1024 );
+		//RightFrontMotor.getSensorCollection().getQuadraturePosition();
     }
+	
+	public void Drive(double distance) {
+		double circumferenceInInches =  23.56;
+		int pulsesPerRotation = 1024 ;
+		int currentPosition = RightFrontMotor.getSensorCollection().getQuadraturePosition();
+		double targetPulseCount = (distance / circumferenceInInches) * pulsesPerRotation;
+
+			do {
+				myDrive.arcadeDrive(.5,0);
+				currentPosition = RightFrontMotor.getSensorCollection().getQuadraturePosition();
+				
+				} while (currentPosition < targetPulseCount);
+			myDrive.stopMotor();
+			
+	}
 	
 	
 	@Override
@@ -251,7 +273,7 @@ public class Robot extends IterativeRobot   {
 				LiftMotor.set(LiftPower);
 			} else if (POV == 180) {
 				// Lift Down
-				LiftMotor.set(-LiftPower/2);
+				LiftMotor.set(-LiftPower);
 			} else {
 				// Lift Stop
 				LiftMotor.set(0);
@@ -289,7 +311,7 @@ public class Robot extends IterativeRobot   {
 			if (stick.getRawButton(2)) { 
 				// grab close
 				grabclose();
-			}
+			} 
 			
 			if (stick.getRawButton(9)) {
 				// open servo
@@ -301,9 +323,35 @@ public class Robot extends IterativeRobot   {
 			} 
 		
 			if (stick.getRawButton(5)){
-			//	Music.setSpeed(.5);
+				LeftFrontMotor.setSelectedSensorPosition(0, 0, 0);
+				RightFrontMotor.setSelectedSensorPosition(0, 0, 0);
+				LeftFrontMotor.setNeutralMode(NeutralMode.Brake);  
+				RightFrontMotor.setNeutralMode(NeutralMode.Brake); 
+				
+			}
+			if (stick.getRawButton(6)){
+				int Leftcount = -LeftFrontMotor.getSensorCollection().getQuadraturePosition();				
+				int Rightcount = LeftFrontMotor.getSensorCollection().getQuadraturePosition();
+				
+				while ((Leftcount <4000) && (Rightcount <4000) ){
+					myDrive.arcadeDrive(.5, 0);
+					Leftcount = -LeftFrontMotor.getSensorCollection().getQuadraturePosition();				
+					Rightcount = LeftFrontMotor.getSensorCollection().getQuadraturePosition();
+					SmartDashboard.putNumber("Left Encdoer Count", Leftcount);
+					SmartDashboard.putNumber("Right Encdoer Count", Rightcount);        
+				}
+				int x=0;
+				while (x<10) {
+					SmartDashboard.putNumber("x", x);        
+						myDrive.arcadeDrive(-.5, 0);
+					x=x+1;
+				}
 			} else {
-				//Music.setSpeed(0);
+					
+			}
+			
+			if (stick.getRawButton(8)){
+				Drive(120);
 			}
 		}
 	}
