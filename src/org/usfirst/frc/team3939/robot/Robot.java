@@ -1,25 +1,13 @@
 package org.usfirst.frc.team3939.robot;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.Timer; 
-import edu.wpi.first.wpilibj.RobotDrive.MotorType;
-//import edu.wpi.first.wpilibj.SendableBase;
-//import edu.wpi.first.wpilibj.SpeedControllerGroup;
-//import edu.wpi.first.wpilibj.drive.RobotDriveBase;
-//import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-//import edu.wpi.first.wpilibj.vision.USBCamera;
-
-//import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import com.kauailabs.navx.frc.AHRS;
-
-//import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -44,15 +32,14 @@ public class Robot extends IterativeRobot   {
 	
 	String autoSelected;
 	Boolean gearSelected, shotSelected;
-	
-	@SuppressWarnings("deprecation")
-	RobotDrive myDrive;
 	 
 	// Channels for the wheels
 	WPI_TalonSRX LeftBackMotor = new WPI_TalonSRX(20); 		/* device IDs here (1 of 2) */
 	WPI_TalonSRX LeftFrontMotor = new WPI_TalonSRX(25);
 	WPI_TalonSRX RightBackMotor = new WPI_TalonSRX(28);
 	WPI_TalonSRX RightFrontMotor = new WPI_TalonSRX(21);
+	
+	DifferentialDrive myDrive = new DifferentialDrive(LeftFrontMotor, RightFrontMotor) ;
 	
 	WPI_TalonSRX LiftMotor = new WPI_TalonSRX(22);
 	double LiftPower = 1; 
@@ -79,16 +66,14 @@ public class Robot extends IterativeRobot   {
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
 	 */
-	@SuppressWarnings("deprecation")
 	@Override 
 	public void robotInit() {
 
 		RightBackMotor.follow(RightFrontMotor);
 		LeftBackMotor.follow(LeftFrontMotor);
 		
-		myDrive = new RobotDrive(LeftFrontMotor, LeftBackMotor, RightFrontMotor, RightBackMotor);
-		myDrive.setInvertedMotor(MotorType.kRearRight, true);
-		myDrive.setInvertedMotor(MotorType.kFrontRight, true);
+		RightBackMotor.setInverted(true);
+		RightFrontMotor.setInverted(true);
 		
 		
 		airpump = new Compressor(0);
@@ -272,7 +257,6 @@ public class Robot extends IterativeRobot   {
 	/**
 	 * This function is called periodically during operator control
 	 */
-	@SuppressWarnings("deprecation")
 	@Override
 	public void teleopPeriodic() {
 		while (isOperatorControl() && isEnabled()) {
