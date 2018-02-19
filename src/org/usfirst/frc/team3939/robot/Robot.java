@@ -4,6 +4,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.Timer; 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -61,6 +62,7 @@ public class Robot extends IterativeRobot   {
 	
 	DigitalInput Music;
 	
+	Preferences prefs;
 	
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -68,14 +70,6 @@ public class Robot extends IterativeRobot   {
 	 */
 	@Override 
 	public void robotInit() {
-		
-		SmartDashboard.putNumber("distance in inches",  120);
-		SmartDashboard.putNumber("distance offset",  1536);
-		
-		SmartDashboard.putNumber("timer delay",  5);
-
-		SmartDashboard.putNumber("Turn in degrees",  -45);
-		SmartDashboard.putNumber("Degree offset",  0);
 		
 		RightBackMotor.follow(RightFrontMotor);
 		LeftBackMotor.follow(LeftFrontMotor);
@@ -138,51 +132,13 @@ public class Robot extends IterativeRobot   {
     }
 	
 	public void updateDashBoard() {
-    	//SmartDashboard.putDouble("stick2y", stick2.getY());
-    	//SmartDashboard.putDouble("SpeedRatio",SpeedRatio);
-        //SmartDashboard.putDouble("ShootRatio",ShootRatio);
-        //SmartDashboard.putDouble("Speed", stick.getThrottle());
-        
-        //SmartDashboard.putNumber( "SpeedOut_LeftBackMotor", LeftBackMotor.get());
-        //SmartDashboard.putNumber( "SpeedOut_LeftFrontMotor", LeftFrontMotor.get());
-        //SmartDashboard.putNumber( "SpeedOut_RightBackMotor", RightBackMotor.get());
-        //SmartDashboard.putNumber( "SpeedOut_RightFrontMotor", RightFrontMotor.get());
-        
-        //SmartDashboard.putNumber( "Speed_LeftBackMotor", LeftBackMotor.getSpeed());
-        //SmartDashboard.putNumber( "Speed_LeftFrontMotor", LeftFrontMotor.getSpeed());
-        //SmartDashboard.putNumber( "Speed_RightBackMotor", RightBackMotor.getSpeed());
-        //SmartDashboard.putNumber( "Speed_RightFrontMotor", RightFrontMotor.getSpeed());
-        //SmartDashboard.putNumber( "Speed_ShooterPosMotor", ShooterPosMotor.getSpeed());
-
-        //SmartDashboard.putInt("POV", stick.getPOV());
-        
-        //SmartDashboard.putNumber( "getPosition", ShooterPosMotor.getPosition());    
-        
-        //SmartDashboard.putNumber( "count", sampleEncoder.get());
-        //SmartDashboard.putNumber( "distance", sampleEncoder.getRaw());
-        //SmartDashboard.putNumber( "distance2", sampleEncoder.getDistance());
-        //SmartDashboard.putNumber( "rate", sampleEncoder.getRate());
-        //SmartDashboard.putBoolean( "direction", sampleEncoder.getDirection());
-        //SmartDashboard.putBoolean( "stopped", sampleEncoder.getStopped());
-
-        //SmartDashboard.putNumber( "accel_x", accel.getX());
-        //SmartDashboard.putNumber( "accel_y", accel.getY());
-        //SmartDashboard.putNumber( "accel_z", accel.getZ());
-        
-        //SmartDashboard.putBoolean( "limit", lSwitch.get());
-        
-        //SmartDashboard.putNumber("Sonar Dist",sonarDist());
-        //SmartDashboard.putNumber("Gyro",gyro.getAngle());
-        
-        //SmartDashboard.putBoolean("airpump enabled", airpump.enabled());
-        //SmartDashboard.putBoolean("airpump pressureSwitch", airpump.getPressureSwitchValue());
-        //SmartDashboard.putNumber("airpumpp current", airpump.getCompressorCurrent());
-		
+    			
 		SmartDashboard.putNumber("Left Encdoer Count", LeftFrontMotor.getSensorCollection().getQuadraturePosition());
-		SmartDashboard.putNumber("pov", stick.getPOV());
 		SmartDashboard.putNumber("Right Encdoer Count", RightFrontMotor.getSensorCollection().getQuadraturePosition());        
-		//RightFrontMotor.getSensorCollection().getQuadraturePosition();
-    }
+		SmartDashboard.putString("GameData", DriverStation.getInstance().getGameSpecificMessage());
+		SmartDashboard.putNumber("BotLocation", DriverStation.getInstance().getLocation());
+		
+	}
 	
 	public void Drive(double distance) {
 		LeftFrontMotor.setSelectedSensorPosition(0, 0, 0);
@@ -190,8 +146,9 @@ public class Robot extends IterativeRobot   {
 		SmartDashboard.putNumber("Left Encdoer Count", LeftFrontMotor.getSensorCollection().getQuadraturePosition());
 		SmartDashboard.putNumber("Right Encdoer Count", RightFrontMotor.getSensorCollection().getQuadraturePosition());        
 		
-		double doset = SmartDashboard.getNumber("distance offset", 0);
-
+		double doset = prefs.getDouble("DistanceOffset", 0);
+		SmartDashboard.putNumber("Got DistanceOffset", doset);
+		
 		double circumferenceInInches =  22.76;
 		int pulsesPerRotation = 1024 ;
 		int currentPosition = RightFrontMotor.getSensorCollection().getQuadraturePosition();
@@ -204,6 +161,7 @@ public class Robot extends IterativeRobot   {
 					return;
 				}
 				myDrive.arcadeDrive(.5,.2);
+				//myDrive.tankDrive(.5, .5);
 				currentPosition = RightFrontMotor.getSensorCollection().getQuadraturePosition();
 				
 				} while (currentPosition < targetPulseCount);
@@ -217,8 +175,9 @@ public class Robot extends IterativeRobot   {
 		LeftFrontMotor.setSelectedSensorPosition(0, 0, 0);
 		RightFrontMotor.setSelectedSensorPosition(0, 0, 0);
 
-		double deset = SmartDashboard.getNumber("Degree offset", 0);
-
+		double deset = SmartDashboard.getNumber("DegreeOffset", 0);
+		SmartDashboard.putNumber("Got DegreeOffset", deset);
+		
 		double circumferenceInInches =  22.76;
 		int pulsesPerRotation = 1024 ;  
 		int currentPosition = RightFrontMotor.getSensorCollection().getQuadraturePosition();
@@ -231,16 +190,31 @@ public class Robot extends IterativeRobot   {
 					return;
 				}
 				if (targetPulseCount > 0 ) {
-				myDrive.arcadeDrive(0,.5); //Not sure about direction
-				currentPosition = RightFrontMotor.getSensorCollection().getQuadraturePosition();
-					} else {
-						myDrive.arcadeDrive(0,-.5); //Not sure about direction
-						currentPosition = RightFrontMotor.getSensorCollection().getQuadraturePosition();							
+					myDrive.arcadeDrive(0,.5); //Not sure about direction
+					//myDrive.tankDrive(-.25, .25);
+					currentPosition = RightFrontMotor.getSensorCollection().getQuadraturePosition();
+				} else {
+					myDrive.arcadeDrive(0,-.5); //Not sure about direction
+					//myDrive.tankDrive(.25, -.25);
+					currentPosition = RightFrontMotor.getSensorCollection().getQuadraturePosition();							
 					}
 				} while (currentPosition < targetPulseCount);
 			myDrive.stopMotor();
 			SmartDashboard.putNumber("turn end", currentPosition);
 			
+	}
+	
+
+	public void etest() {
+		LeftFrontMotor.setSelectedSensorPosition(0, 0, 0);
+		RightFrontMotor.setSelectedSensorPosition(0, 0, 0);
+		SmartDashboard.putNumber("LeftFrontMotor eStart", LeftFrontMotor.getSensorCollection().getQuadraturePosition());
+		SmartDashboard.putNumber("RightFrontMotor eStart", RightFrontMotor.getSensorCollection().getQuadraturePosition());
+		myDrive.tankDrive(.5, .5);
+		Timer.delay(1);
+		SmartDashboard.putNumber("LeftFrontMotor eEnd", LeftFrontMotor.getSensorCollection().getQuadraturePosition());
+		SmartDashboard.putNumber("RightFrontMotor eEnd", RightFrontMotor.getSensorCollection().getQuadraturePosition());
+		myDrive.stopMotor();
 	}
 	
 	
@@ -293,9 +267,10 @@ public class Robot extends IterativeRobot   {
 	public void teleopPeriodic() {
 		while (isOperatorControl() && isEnabled()) {
 		
-
+			prefs = Preferences.getInstance();
+			
 			myDrive.setSafetyEnabled(true);
-			myDrive.arcadeDrive(-stick.getY(), -stick.getZ());	
+			myDrive.arcadeDrive(-stick.getY(), stick.getZ());	
 	        	     	
 			updateDashBoard(); 
 			
@@ -358,43 +333,19 @@ public class Robot extends IterativeRobot   {
 			} 
 		
 			if (stick.getRawButton(5)){
-				LeftFrontMotor.setSelectedSensorPosition(0, 0, 0);
-				RightFrontMotor.setSelectedSensorPosition(0, 0, 0);
-				LeftFrontMotor.setNeutralMode(NeutralMode.Brake);  
-				RightFrontMotor.setNeutralMode(NeutralMode.Brake); 
-				
+				etest();
 			}
-			if (stick.getRawButton(99)){
-				int Leftcount = -LeftFrontMotor.getSensorCollection().getQuadraturePosition();				
-				int Rightcount = RightFrontMotor.getSensorCollection().getQuadraturePosition();
-				
-				while ((Leftcount <4000) && (Rightcount <4000) ){
-					myDrive.arcadeDrive(.5, .20);
-					Leftcount = -LeftFrontMotor.getSensorCollection().getQuadraturePosition();				
-					Rightcount = RightFrontMotor.getSensorCollection().getQuadraturePosition();
-					SmartDashboard.putNumber("Left Encdoer Count", Leftcount);
-					SmartDashboard.putNumber("Right Encdoer Count", Rightcount);        
-				}
-				//int x=0;
-				//while (x<10) {
-				//	SmartDashboard.putNumber("x", x);        
-				//		myDrive.arcadeDrive(-.5, 0);
-			//		x=x+1;
-			//	}
-				LeftFrontMotor.stopMotor();
-				RightFrontMotor.stopMotor();
-				
-				
-			} else {
-					
-			}
+		
 			
 			if (stick.getRawButton(8)){
-				double dii = SmartDashboard.getNumber("distance in inches", 0);
+				double dii = prefs.getDouble("DistanceInInches", 0);
+				SmartDashboard.putNumber("Got DistanceInInches", dii);
 				Drive(dii);
-				double tdelay = SmartDashboard.getNumber("distance in inches", 0);
+				double tdelay = prefs.getDouble("TimerDelay", 0);
+				SmartDashboard.putNumber("Got TimerDelay", tdelay);
 				Timer.delay(5.0);
-				double tid = SmartDashboard.getNumber("Turn in degrees", 0);
+				double tid = prefs.getDouble("TurnInDegrees", 0);
+				SmartDashboard.putNumber("Got TurnInDegrees", tid);
 				//Turn(tid);
 			}
 		}
