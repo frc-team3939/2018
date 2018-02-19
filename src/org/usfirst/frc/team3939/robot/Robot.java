@@ -1,6 +1,5 @@
 package org.usfirst.frc.team3939.robot;
 
-import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
@@ -175,7 +174,7 @@ public class Robot extends IterativeRobot   {
 		LeftFrontMotor.setSelectedSensorPosition(0, 0, 0);
 		RightFrontMotor.setSelectedSensorPosition(0, 0, 0);
 
-		double deset = SmartDashboard.getNumber("DegreeOffset", 0);
+		double deset = prefs.getDouble("DegreeOffset", 0);
 		SmartDashboard.putNumber("Got DegreeOffset", deset);
 		
 		double circumferenceInInches =  22.76;
