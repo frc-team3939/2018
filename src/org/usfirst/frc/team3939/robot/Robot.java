@@ -3,12 +3,14 @@ package org.usfirst.frc.team3939.robot;
 import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.Timer; 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid; 
@@ -49,7 +51,12 @@ public class Robot extends IterativeRobot   {
 
 	WPI_TalonSRX HookMotor = new WPI_TalonSRX(27);
 	double HookPower = .4;
-
+	
+	Encoder LEncoder = new Encoder(1,2);
+	Encoder REncoder = new Encoder(3,4);
+	
+	PIDController LController = new PIDController(.1,0,0, LEncoder, LeftFrontMotor);
+	PIDController RController = new PIDController(.1,0,0, REncoder, RightFrontMotor);
 	
 	Joystick stick = new Joystick(0);
 	int POV = -1;
