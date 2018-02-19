@@ -312,7 +312,7 @@ public class Robot extends IterativeRobot   {
 				// Hook Stop
 				HookMotor.set(0); 
 			}
-			
+			 
 			 
 			if (stick.getRawButton(1)) {
 				// grab open
