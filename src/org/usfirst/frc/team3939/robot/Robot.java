@@ -68,7 +68,15 @@ public class Robot extends IterativeRobot   {
 	 */
 	@Override 
 	public void robotInit() {
+		
+		SmartDashboard.putNumber("distance in inches",  120);
+		SmartDashboard.putNumber("distance offset",  1536);
+		
+		SmartDashboard.putNumber("timer delay",  5);
 
+		SmartDashboard.putNumber("Turn in degrees",  -45);
+		SmartDashboard.putNumber("Degree offset",  0);
+		
 		RightBackMotor.follow(RightFrontMotor);
 		LeftBackMotor.follow(LeftFrontMotor);
 		
@@ -87,7 +95,7 @@ public class Robot extends IterativeRobot   {
 
 		 
 		CameraServer.getInstance().startAutomaticCapture(0); //USB Cameras
-		CameraServer.getInstance().startAutomaticCapture(1); //USB Cameras
+//		CameraServer.getInstance().startAutomaticCapture(1); //USB Cameras
 		
 		
 
@@ -173,32 +181,55 @@ public class Robot extends IterativeRobot   {
 		SmartDashboard.putNumber("Left Encdoer Count", LeftFrontMotor.getSensorCollection().getQuadraturePosition());
 		SmartDashboard.putNumber("pov", stick.getPOV());
 		SmartDashboard.putNumber("Right Encdoer Count", RightFrontMotor.getSensorCollection().getQuadraturePosition());        
-		SmartDashboard.putNumber("Target", (120 / 23.56) * 1024 );
 		//RightFrontMotor.getSensorCollection().getQuadraturePosition();
     }
 	
 	public void Drive(double distance) {
-		double circumferenceInInches =  23.56;
+		LeftFrontMotor.setSelectedSensorPosition(0, 0, 0);
+		RightFrontMotor.setSelectedSensorPosition(0, 0, 0);
+		SmartDashboard.putNumber("Left Encdoer Count", LeftFrontMotor.getSensorCollection().getQuadraturePosition());
+		SmartDashboard.putNumber("Right Encdoer Count", RightFrontMotor.getSensorCollection().getQuadraturePosition());        
+		
+		double doset = SmartDashboard.getNumber("distance offset", 0);
+
+		double circumferenceInInches =  22.76;
 		int pulsesPerRotation = 1024 ;
 		int currentPosition = RightFrontMotor.getSensorCollection().getQuadraturePosition();
-		double targetPulseCount = (distance / circumferenceInInches) * pulsesPerRotation;
-
+		double targetPulseCount = (distance / circumferenceInInches) * pulsesPerRotation - doset;
+		SmartDashboard.putNumber("Target", targetPulseCount);
+		SmartDashboard.putNumber("drive start", currentPosition);
+		
 			do {
-				myDrive.arcadeDrive(.5,0);
+				if (stick.getRawButton(6)) {
+					return;
+				}
+				myDrive.arcadeDrive(.5,.2);
 				currentPosition = RightFrontMotor.getSensorCollection().getQuadraturePosition();
 				
 				} while (currentPosition < targetPulseCount);
 			myDrive.stopMotor();
+			SmartDashboard.putNumber("drive end", currentPosition);
+				
 			
 	}
 	
 	public void Turn(double degree) {   // Positive = Left Negitive  = Right
-		double circumferenceInInches =  23.56;
-		int pulsesPerRotation = 1024 ;
+		LeftFrontMotor.setSelectedSensorPosition(0, 0, 0);
+		RightFrontMotor.setSelectedSensorPosition(0, 0, 0);
+
+		double deset = SmartDashboard.getNumber("Degree offset", 0);
+
+		double circumferenceInInches =  22.76;
+		int pulsesPerRotation = 1024 ;  
 		int currentPosition = RightFrontMotor.getSensorCollection().getQuadraturePosition();
 		double targetPulseCount = (((degree/360) * 43.175 ) / circumferenceInInches) * pulsesPerRotation;
-
+		SmartDashboard.putNumber("Turn Target", targetPulseCount);
+		SmartDashboard.putNumber("Turn start", currentPosition);
+		
 			do {
+				if (stick.getRawButton(6)) {
+					return;
+				}
 				if (targetPulseCount > 0 ) {
 				myDrive.arcadeDrive(0,.5); //Not sure about direction
 				currentPosition = RightFrontMotor.getSensorCollection().getQuadraturePosition();
@@ -208,6 +239,7 @@ public class Robot extends IterativeRobot   {
 					}
 				} while (currentPosition < targetPulseCount);
 			myDrive.stopMotor();
+			SmartDashboard.putNumber("turn end", currentPosition);
 			
 	}
 	
@@ -260,7 +292,7 @@ public class Robot extends IterativeRobot   {
 	@Override
 	public void teleopPeriodic() {
 		while (isOperatorControl() && isEnabled()) {
-			
+		
 
 			myDrive.setSafetyEnabled(true);
 			myDrive.arcadeDrive(-stick.getY(), -stick.getZ());	
@@ -332,29 +364,38 @@ public class Robot extends IterativeRobot   {
 				RightFrontMotor.setNeutralMode(NeutralMode.Brake); 
 				
 			}
-			if (stick.getRawButton(6)){
+			if (stick.getRawButton(99)){
 				int Leftcount = -LeftFrontMotor.getSensorCollection().getQuadraturePosition();				
-				int Rightcount = LeftFrontMotor.getSensorCollection().getQuadraturePosition();
+				int Rightcount = RightFrontMotor.getSensorCollection().getQuadraturePosition();
 				
 				while ((Leftcount <4000) && (Rightcount <4000) ){
-					myDrive.arcadeDrive(.5, 0);
+					myDrive.arcadeDrive(.5, .20);
 					Leftcount = -LeftFrontMotor.getSensorCollection().getQuadraturePosition();				
-					Rightcount = LeftFrontMotor.getSensorCollection().getQuadraturePosition();
+					Rightcount = RightFrontMotor.getSensorCollection().getQuadraturePosition();
 					SmartDashboard.putNumber("Left Encdoer Count", Leftcount);
 					SmartDashboard.putNumber("Right Encdoer Count", Rightcount);        
 				}
-				int x=0;
-				while (x<10) {
-					SmartDashboard.putNumber("x", x);        
-						myDrive.arcadeDrive(-.5, 0);
-					x=x+1;
-				}
+				//int x=0;
+				//while (x<10) {
+				//	SmartDashboard.putNumber("x", x);        
+				//		myDrive.arcadeDrive(-.5, 0);
+			//		x=x+1;
+			//	}
+				LeftFrontMotor.stopMotor();
+				RightFrontMotor.stopMotor();
+				
+				
 			} else {
 					
 			}
 			
 			if (stick.getRawButton(8)){
-				Drive(120);
+				double dii = SmartDashboard.getNumber("distance in inches", 0);
+				Drive(dii);
+				double tdelay = SmartDashboard.getNumber("distance in inches", 0);
+				Timer.delay(5.0);
+				double tid = SmartDashboard.getNumber("Turn in degrees", 0);
+				//Turn(tid);
 			}
 		}
 	}
