@@ -139,87 +139,100 @@ public class Robot extends IterativeRobot   {
 	
 	public void updateDashBoard() {
     			
-		SmartDashboard.putNumber("Left Encdoer Count", LeftFrontMotor.getSensorCollection().getQuadraturePosition());
-		SmartDashboard.putNumber("Right Encdoer Count", RightFrontMotor.getSensorCollection().getQuadraturePosition());        
+		SmartDashboard.putNumber("Left Encdoer Count", LEncoder.getDistance());
+		SmartDashboard.putNumber("Right Encdoer Count", REncoder.getDistance());        
 		SmartDashboard.putString("GameData", DriverStation.getInstance().getGameSpecificMessage());
 		SmartDashboard.putNumber("BotLocation", DriverStation.getInstance().getLocation());
 		
 	}
 	
 	public void Drive(double distance) {
-		LeftFrontMotor.setSelectedSensorPosition(0, 0, 0);
-		RightFrontMotor.setSelectedSensorPosition(0, 0, 0);
-		SmartDashboard.putNumber("Left Encdoer Count", LeftFrontMotor.getSensorCollection().getQuadraturePosition());
-		SmartDashboard.putNumber("Right Encdoer Count", RightFrontMotor.getSensorCollection().getQuadraturePosition());        
+		LEncoder.reset();
+		REncoder.reset();
+		LController.enable();
+		RController.enable();
+		SmartDashboard.putNumber("Left Encdoer Count", LEncoder.getDistance());
+		SmartDashboard.putNumber("Right Encdoer Count", REncoder.getDistance());        
 		
 		double doset = prefs.getDouble("DistanceOffset", 0);
 		SmartDashboard.putNumber("Got DistanceOffset", doset);
 		
 		double circumferenceInInches =  22.76;
 		int pulsesPerRotation = 1024 ;
-		int currentPosition = RightFrontMotor.getSensorCollection().getQuadraturePosition();
+		int currentPosition = (int) REncoder.getDistance();
 		double targetPulseCount = (distance / circumferenceInInches) * pulsesPerRotation - doset;
 		SmartDashboard.putNumber("Target", targetPulseCount);
 		SmartDashboard.putNumber("drive start", currentPosition);
 		
+		LController.setSetpoint(targetPulseCount);
+		RController.setSetpoint(targetPulseCount);
+/*		
 			do {
 				if (stick.getRawButton(6)) {
 					return;
 				}
 				myDrive.arcadeDrive(.5,.2);
 				//myDrive.tankDrive(.5, .5);
-				currentPosition = RightFrontMotor.getSensorCollection().getQuadraturePosition();
+				currentPosition = (int) REncoder.getDistance();
 				
 				} while (currentPosition < targetPulseCount);
 			myDrive.stopMotor();
 			SmartDashboard.putNumber("drive end", currentPosition);
 				
-			
+*/	
+		LController.disable();
+		RController.disable();
+		LEncoder.reset();
+		REncoder.reset();
 	}
 	
 	public void Turn(double degree) {   // Positive = Left Negitive  = Right
-		LeftFrontMotor.setSelectedSensorPosition(0, 0, 0);
-		RightFrontMotor.setSelectedSensorPosition(0, 0, 0);
+		
+		LEncoder.reset();
+		REncoder.reset();
+		LController.enable();
 
 		double deset = prefs.getDouble("DegreeOffset", 0);
 		SmartDashboard.putNumber("Got DegreeOffset", deset);
 		
 		double circumferenceInInches =  22.76;
 		int pulsesPerRotation = 1024 ;  
-		int currentPosition = RightFrontMotor.getSensorCollection().getQuadraturePosition();
+		int currentPosition = (int) REncoder.getDistance();
 		double targetPulseCount = (((degree/360) * 43.175 ) / circumferenceInInches) * pulsesPerRotation;
 		SmartDashboard.putNumber("Turn Target", targetPulseCount);
 		SmartDashboard.putNumber("Turn start", currentPosition);
 		
-			do {
+		
+/*			do {
 				if (stick.getRawButton(6)) {
 					return;
 				}
 				if (targetPulseCount > 0 ) {
 					myDrive.arcadeDrive(0,.5); //Not sure about direction
 					//myDrive.tankDrive(-.25, .25);
-					currentPosition = RightFrontMotor.getSensorCollection().getQuadraturePosition();
+					currentPosition = (int) REncoder.getDistance();
 				} else {
 					myDrive.arcadeDrive(0,-.5); //Not sure about direction
 					//myDrive.tankDrive(.25, -.25);
-					currentPosition = RightFrontMotor.getSensorCollection().getQuadraturePosition();							
+					currentPosition = (int) REncoder.getDistance();							
 					}
 				} while (currentPosition < targetPulseCount);
 			myDrive.stopMotor();
 			SmartDashboard.putNumber("turn end", currentPosition);
-			
+*/	
+		LController.disable();
 	}
 	
 
 	public void etest() {
 		LeftFrontMotor.setSelectedSensorPosition(0, 0, 0);
 		RightFrontMotor.setSelectedSensorPosition(0, 0, 0);
-		SmartDashboard.putNumber("LeftFrontMotor eStart", LeftFrontMotor.getSensorCollection().getQuadraturePosition());
-		SmartDashboard.putNumber("RightFrontMotor eStart", RightFrontMotor.getSensorCollection().getQuadraturePosition());
+		SmartDashboard.putNumber("LeftFrontMotor eStart", LEncoder.getDistance());
+		SmartDashboard.putNumber("RightFrontMotor eStart", REncoder.getDistance());
 		myDrive.tankDrive(.5, .5);
 		Timer.delay(1);
-		SmartDashboard.putNumber("LeftFrontMotor eEnd", LeftFrontMotor.getSensorCollection().getQuadraturePosition());
-		SmartDashboard.putNumber("RightFrontMotor eEnd", RightFrontMotor.getSensorCollection().getQuadraturePosition());
+		SmartDashboard.putNumber("LeftFrontMotor eEnd", LEncoder.getDistance());
+		SmartDashboard.putNumber("RightFrontMotor eEnd", REncoder.getDistance());
 		myDrive.stopMotor();
 	}
 	
