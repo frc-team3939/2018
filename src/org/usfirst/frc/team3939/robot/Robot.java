@@ -191,6 +191,7 @@ public class Robot extends IterativeRobot   {
 		LEncoder.reset();
 		REncoder.reset();
 		LController.enable();
+		RController.enable();
 
 		double deset = prefs.getDouble("DegreeOffset", 0);
 		SmartDashboard.putNumber("Got DegreeOffset", deset);
@@ -198,10 +199,18 @@ public class Robot extends IterativeRobot   {
 		double circumferenceInInches =  22.76;
 		int pulsesPerRotation = 1024 ;  
 		int currentPosition = (int) REncoder.getDistance();
-		double targetPulseCount = (((degree/360) * 43.175 ) / circumferenceInInches) * pulsesPerRotation;
+		double targetPulseCount = (((degree/360) * 87.175 ) / circumferenceInInches) * pulsesPerRotation;
 		SmartDashboard.putNumber("Turn Target", targetPulseCount);
 		SmartDashboard.putNumber("Turn start", currentPosition);
 		
+		if (degree < 0) {
+			LController.setSetpoint(-targetPulseCount);
+			RController.setSetpoint(targetPulseCount);
+		}
+		else {
+			LController.setSetpoint(targetPulseCount);
+			RController.setSetpoint(-targetPulseCount);
+		}
 		
 /*			do {
 				if (stick.getRawButton(6)) {
@@ -221,6 +230,9 @@ public class Robot extends IterativeRobot   {
 			SmartDashboard.putNumber("turn end", currentPosition);
 */	
 		LController.disable();
+		RController.disable();
+		LEncoder.reset();
+		REncoder.reset();
 	}
 	
 
