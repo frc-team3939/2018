@@ -339,7 +339,20 @@ public class Robot extends IterativeRobot   {
 	@Override
 	public void autonomousPeriodic() {	
 		if(setup == 1) {
-			
+			Drive(1670);
+			Timer.delay(3.5);
+			LController.disable();
+			RController.disable();
+			LiftMotor.set(1);
+			Timer.delay(2);
+			LiftMotor.set(0);
+			Turn(270);
+			Drive(250);
+			Timer.delay(3);
+			LController.disable();
+			RController.disable();
+			myDrive.stopMotor();
+			grabopen();
 		}
 		if(setup == 2) {
 			
@@ -351,11 +364,29 @@ public class Robot extends IterativeRobot   {
 			
 		}
 		if(setup == 5) {
-			
+			Drive(1045);
+			Timer.delay(3);
+			LController.disable();
+			RController.disable();
+			Turn(200);
+			Drive(495);
+			Timer.delay(3);
+			LController.disable();
+			RController.disable();
+			LiftMotor.set(1);
+			Timer.delay(2);
+			LiftMotor.set(0);
+			Turn(-270);
+			Drive(250);
+			Timer.delay(3);
+			LController.disable();
+			RController.disable();
+			myDrive.stopMotor();
+			grabopen();	
 		}
 		if(setup == 6) {
 			Drive(1670);
-			Timer.delay(5);
+			Timer.delay(3.5);
 			LController.disable();
 			RController.disable();
 			LiftMotor.set(1);
