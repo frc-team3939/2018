@@ -8,6 +8,8 @@ import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.Timer; 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
+
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
@@ -52,11 +54,12 @@ public class Robot extends IterativeRobot   {
 	WPI_TalonSRX HookMotor = new WPI_TalonSRX(27);
 	double HookPower = .4;
 	
-	Encoder LEncoder = new Encoder(1,2);
-	Encoder REncoder = new Encoder(3,4);
+	Encoder REncoder = new Encoder(0,1);
+	Encoder LEncoder = new Encoder(2,3);
 	
-	PIDController LController = new PIDController(.1,0,0, LEncoder, LeftFrontMotor);
-	PIDController RController = new PIDController(.1,0,0, REncoder, RightFrontMotor);
+	
+	PIDController LController = new PIDController(.00082,.000,.01, LEncoder, LeftFrontMotor);
+	PIDController RController = new PIDController(.00082,.000,.01, REncoder, RightFrontMotor);
 	
 	Joystick stick = new Joystick(0);
 	int POV = -1;
@@ -64,6 +67,7 @@ public class Robot extends IterativeRobot   {
 	Compressor airpump;
 	DoubleSolenoid Solenoid6;
     
+	Servo CameraServo;
 	Servo S0;
 	
 	DigitalInput Music;
@@ -76,10 +80,23 @@ public class Robot extends IterativeRobot   {
 	 */
 	@Override 
 	public void robotInit() {
+		LeftFrontMotor.configClosedloopRamp(.25, 0);
+		RightFrontMotor.configClosedloopRamp(.25, 0);
 		
+		LiveWindow.addActuator("1", "Left Motor", LController);
+		LiveWindow.addActuator("1", "Right motor", RController);
+		
+		LiveWindow.addSensor("1", "Left Encoder", LEncoder);
+		LiveWindow.addSensor("1", "Right Encoder", REncoder);
+
+		LEncoder.setReverseDirection(true);
+		REncoder.setReverseDirection(true);
+		//RController.setAbsoluteTolerance(.05);
+		//LController.setAbsoluteTolerance(.05);
+
 		RightBackMotor.follow(RightFrontMotor);
 		LeftBackMotor.follow(LeftFrontMotor);
-		
+		 
 		RightBackMotor.setInverted(true);
 		RightFrontMotor.setInverted(true);
 		
@@ -89,13 +106,16 @@ public class Robot extends IterativeRobot   {
 		//airpump.setClosedLoopControl(false); //compressor off
 		
 		Solenoid6 = new DoubleSolenoid(0,1);
-	       
+	    
+		CameraServo = new Servo(9);
+		
 		S0 = new Servo(0);
-		S0.set(.1);   // set kicker default position
+		S0.set(.3);   // set kicker default position
 
 		 
-		CameraServer.getInstance().startAutomaticCapture(0); //USB Cameras
-//		CameraServer.getInstance().startAutomaticCapture(1); //USB Cameras
+		CameraServer.getInstance().startAutomaticCapture(); //USB Cameras
+		//CameraServer.getInstance().startAutomaticCapture(); //USB Cameras
+		//CameraServer.getInstance().addAxisCamera("10.39.39.18");
 		
 		
 
@@ -149,10 +169,8 @@ public class Robot extends IterativeRobot   {
 	public void Drive(double distance) {
 		LEncoder.reset();
 		REncoder.reset();
-		LController.enable();
-		RController.enable();
-		SmartDashboard.putNumber("Left Encdoer Count", LEncoder.getDistance());
-		SmartDashboard.putNumber("Right Encdoer Count", REncoder.getDistance());        
+		SmartDashboard.putNumber("LeftFrontMotor eStart", LEncoder.getDistance());
+		SmartDashboard.putNumber("RightFrontMotor eStart", REncoder.getDistance());
 		
 		double doset = prefs.getDouble("DistanceOffset", 0);
 		SmartDashboard.putNumber("Got DistanceOffset", doset);
@@ -164,8 +182,11 @@ public class Robot extends IterativeRobot   {
 		SmartDashboard.putNumber("Target", targetPulseCount);
 		SmartDashboard.putNumber("drive start", currentPosition);
 		
-		LController.setSetpoint(targetPulseCount);
-		RController.setSetpoint(targetPulseCount);
+		LController.setSetpoint(distance+225);
+		RController.setSetpoint(-distance);
+		LController.enable();
+		RController.enable();
+		
 /*		
 			do {
 				if (stick.getRawButton(6)) {
@@ -180,18 +201,22 @@ public class Robot extends IterativeRobot   {
 			SmartDashboard.putNumber("drive end", currentPosition);
 				
 */	
-		LController.disable();
-		RController.disable();
-		LEncoder.reset();
-		REncoder.reset();
+//		LController.disable();
+//		RController.disable();
+//		LEncoder.reset();
+//		REncoder.reset();
+		SmartDashboard.putNumber("LeftFrontMotor eEnd", LEncoder.getDistance());
+		SmartDashboard.putNumber("RightFrontMotor eEnd", REncoder.getDistance());
+		
 	}
 	
 	public void Turn(double degree) {   // Positive = Left Negitive  = Right
-		
+		//LController.setPID(.006, .001, .015);
+		//RController.setPID(.006, .001, .015);
+		//LController.setAbsoluteTolerance(50);
+		//RController.setAbsoluteTolerance(50);
 		LEncoder.reset();
 		REncoder.reset();
-		LController.enable();
-		RController.enable();
 
 		double deset = prefs.getDouble("DegreeOffset", 0);
 		SmartDashboard.putNumber("Got DegreeOffset", deset);
@@ -204,14 +229,29 @@ public class Robot extends IterativeRobot   {
 		SmartDashboard.putNumber("Turn start", currentPosition);
 		
 		if (degree < 0) {
-			LController.setSetpoint(-targetPulseCount);
-			RController.setSetpoint(targetPulseCount);
+			while(currentPosition >= degree){
+				myDrive.tankDrive(-.6, .6);
+				currentPosition = (int) REncoder.getDistance();
+				SmartDashboard.putNumber("Current position", currentPosition);
+
+			}
+			myDrive.stopMotor();
+			//LController.setSetpoint(degree);
+			//RController.setSetpoint(degree);
 		}
 		else {
-			LController.setSetpoint(targetPulseCount);
-			RController.setSetpoint(-targetPulseCount);
+			while(currentPosition <= degree){
+				myDrive.tankDrive(.6, -.6);
+				currentPosition = (int) REncoder.getDistance();
+				SmartDashboard.putNumber("Current position", currentPosition);
+			}
+			myDrive.stopMotor();
+			//LController.setSetpoint(targetPulseCount);
+			//RController.setSetpoint(-targetPulseCount);
 		}
 		
+		//LController.enable();
+		//RController.enable();
 /*			do {
 				if (stick.getRawButton(6)) {
 					return;
@@ -229,20 +269,29 @@ public class Robot extends IterativeRobot   {
 			myDrive.stopMotor();
 			SmartDashboard.putNumber("turn end", currentPosition);
 */	
-		LController.disable();
-		RController.disable();
-		LEncoder.reset();
-		REncoder.reset();
+		//LController.disable();
+		//RController.disable();
+		//LEncoder.reset();
+		//REncoder.reset();
 	}
 	
 
 	public void etest() {
-		LeftFrontMotor.setSelectedSensorPosition(0, 0, 0);
-		RightFrontMotor.setSelectedSensorPosition(0, 0, 0);
+		LEncoder.reset();
+		REncoder.reset();
 		SmartDashboard.putNumber("LeftFrontMotor eStart", LEncoder.getDistance());
 		SmartDashboard.putNumber("RightFrontMotor eStart", REncoder.getDistance());
-		myDrive.tankDrive(.5, .5);
-		Timer.delay(1);
+		double tdelay = prefs.getDouble("TimerDelay", 0);
+		SmartDashboard.putNumber("Got TimerDelay", tdelay);
+		int x=0;
+		do {
+			if (stick.getRawButton(6)) {
+				return;
+			}
+			myDrive.tankDrive(.5, .5);
+			x=x+1;
+		} while (x < tdelay);
+		
 		SmartDashboard.putNumber("LeftFrontMotor eEnd", LEncoder.getDistance());
 		SmartDashboard.putNumber("RightFrontMotor eEnd", REncoder.getDistance());
 		myDrive.stopMotor();
@@ -272,15 +321,15 @@ public class Robot extends IterativeRobot   {
 		  } else {
 			//Put right auto code here
 			 if (botlocation == 1) {
-					
+					 
 			 } else if (botlocation == 2){
 					
 			 } else if (botlocation == 3){
 					
 			 }  
 		  }
-        }
-		
+        } 
+		 
 	}
 
 	/**
@@ -322,6 +371,7 @@ public class Robot extends IterativeRobot   {
 			
 			
 		
+			
 			if (stick.getRawButton(3)) {
 				// Climb Up
 				ClimbMotor.set(ClimbPower);
@@ -368,16 +418,33 @@ public class Robot extends IterativeRobot   {
 			}
 		
 			
-			if (stick.getRawButton(8)){
+			if (stick.getRawButton(8)){//-250 Left 90  140 Right 12 ticks per inch
 				double dii = prefs.getDouble("DistanceInInches", 0);
 				SmartDashboard.putNumber("Got DistanceInInches", dii);
+				S0.set(.5);
 				Drive(dii);
+				Timer.delay(5);
+				LController.disable();
+				RController.disable();
 				double tdelay = prefs.getDouble("TimerDelay", 0);
 				SmartDashboard.putNumber("Got TimerDelay", tdelay);
-				Timer.delay(5.0);
+				Timer.delay(2);
 				double tid = prefs.getDouble("TurnInDegrees", 0);
 				SmartDashboard.putNumber("Got TurnInDegrees", tid);
-				//Turn(tid);
+				LiftMotor.set(1);
+				Timer.delay(2);
+				LiftMotor.set(0);
+				Turn(tid);
+				Drive(121);
+				Timer.delay(3);
+				LController.disable();
+				RController.disable();
+				myDrive.stopMotor();
+				grabopen();
+			}
+			if (stick.getRawButton(6)){
+				LController.disable();
+				RController.disable();
 			}
 		}
 	}
@@ -387,7 +454,7 @@ public class Robot extends IterativeRobot   {
 	 */
 	@Override 
 	public void testPeriodic() {   
+		LiveWindow.run();
 	}
-
 	
 }
