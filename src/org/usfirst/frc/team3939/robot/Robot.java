@@ -111,8 +111,9 @@ public class Robot extends IterativeRobot   {
 		S0.set(.3);   // set kicker default position
 
 		 
-		CameraServer.getInstance().startAutomaticCapture(0); //USB Cameras
-//		CameraServer.getInstance().startAutomaticCapture(1); //USB Cameras
+		CameraServer.getInstance().startAutomaticCapture(); //USB Cameras
+		CameraServer.getInstance().startAutomaticCapture(); //USB Cameras
+		CameraServer.getInstance().addAxisCamera("10.39.39.18");
 		
 		
 
