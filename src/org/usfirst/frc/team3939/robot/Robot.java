@@ -63,6 +63,8 @@ public class Robot extends IterativeRobot   {
 	
 	Joystick stick = new Joystick(0);
 	int POV = -1;
+	int setup;
+
 	
 	Compressor airpump;
 	DoubleSolenoid Solenoid6;
@@ -300,7 +302,6 @@ public class Robot extends IterativeRobot   {
 	
 	@Override
 	public void autonomousInit() {
-		
 		String gameData;
 		int botlocation;
 		gameData = DriverStation.getInstance().getGameSpecificMessage();
@@ -312,20 +313,20 @@ public class Robot extends IterativeRobot   {
 		  {
 			//Put left auto code here
 			if (botlocation == 1) {
-				
+				setup = 1;
 			} else if (botlocation == 2){
-				
+				setup = 2;
 			} else if (botlocation == 3){
-				
+				setup = 3;
 			}
 		  } else {
 			//Put right auto code here
 			 if (botlocation == 1) {
-					 
+				setup = 4;	 
 			 } else if (botlocation == 2){
-					
+				setup = 5;	
 			 } else if (botlocation == 3){
-					
+				setup = 6;	
 			 }  
 		  }
         } 
@@ -337,7 +338,37 @@ public class Robot extends IterativeRobot   {
 	 */
 	@Override
 	public void autonomousPeriodic() {	
- 
+		if(setup == 1) {
+			
+		}
+		if(setup == 2) {
+			
+		}
+		if(setup == 3) {
+			
+		}
+		if(setup == 4) {
+			
+		}
+		if(setup == 5) {
+			
+		}
+		if(setup == 6) {
+			Drive(1670);
+			Timer.delay(5);
+			LController.disable();
+			RController.disable();
+			LiftMotor.set(1);
+			Timer.delay(2);
+			LiftMotor.set(0);
+			Turn(-270);
+			Drive(250);
+			Timer.delay(3);
+			LController.disable();
+			RController.disable();
+			myDrive.stopMotor();
+			grabopen();
+		}
 	}
 
 	/**
