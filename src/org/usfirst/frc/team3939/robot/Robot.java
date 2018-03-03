@@ -84,6 +84,8 @@ public class Robot extends IterativeRobot   {
 	public void robotInit() {
 		LeftFrontMotor.configClosedloopRamp(.25, 0);
 		RightFrontMotor.configClosedloopRamp(.25, 0);
+		LeftFrontMotor.configOpenloopRamp(.25, 0);
+		RightFrontMotor.configOpenloopRamp(.25, 0);
 		
 		LiveWindow.addActuator("1", "Left Motor", LController);
 		LiveWindow.addActuator("1", "Right motor", RController);
